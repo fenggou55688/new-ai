@@ -1,5 +1,5 @@
-export const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-export const suits = ['♠', '♥', '♦', '♣'];
+const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+const suits = ['♠', '♥', '♦', '♣'];
 
 export const buildDeck = () => {
   const deck = [];
@@ -13,26 +13,19 @@ export const buildDeck = () => {
   return deck;
 };
 
-const getCardValue = (rank) => {
+export const getCardValue = (rank) => {
   if (rank === 'A') return 1;
   if (['10', 'J', 'Q', 'K'].includes(rank)) return 0;
   return parseInt(rank);
 };
 
-const calculatePoints = (cards) => {
+export const calculatePoints = (cards) => {
   let total = cards.reduce((sum, card) => sum + getCardValue(card.rank), 0);
   return total % 10;
 };
 
-const cloneDeck = (deck) => JSON.parse(JSON.stringify(deck));
-
-const getRandomCard = (deck) => {
-  const idx = Math.floor(Math.random() * deck.length);
-  return deck.splice(idx, 1)[0];
-};
-
 export const simulateGame = (deck) => {
-  const d = cloneDeck(deck);
+  const d = [...deck];
   const player = [getRandomCard(d), getRandomCard(d)];
   const banker = [getRandomCard(d), getRandomCard(d)];
 
@@ -47,19 +40,7 @@ export const simulateGame = (deck) => {
     player.push(playerThird);
   }
 
-  const pt = playerThird ? getCardValue(playerThird.rank) : null;
-  const bankerDrawRule = (b) => {
-    if (b >= 7) return false;
-    if (b <= 2) return true;
-    if (!playerThird) return b <= 5;
-    if (b === 3) return pt !== 8;
-    if (b === 4) return pt >= 2 && pt <= 7;
-    if (b === 5) return pt >= 4 && pt <= 7;
-    if (b === 6) return pt === 6 || pt === 7;
-    return false;
-  };
-
-  if (bankerDrawRule(bankerPoint)) {
+  if (bankerPoint <= 5) {
     bankerThird = getRandomCard(d);
     banker.push(bankerThird);
   }
@@ -70,4 +51,9 @@ export const simulateGame = (deck) => {
   if (finalPlayer > finalBanker) return '閒';
   if (finalBanker > finalPlayer) return '莊';
   return '和';
+};
+
+const getRandomCard = (deck) => {
+  const idx = Math.floor(Math.random() * deck.length);
+  return deck.splice(idx, 1)[0];
 };
