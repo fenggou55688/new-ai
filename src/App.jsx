@@ -33,7 +33,7 @@ const getRandomCard = (deck) => {
   return deck.splice(idx, 1)[0]
 }
 
-const simulateGame = (deck) => {
+const simulateGame = (deck, history) => {
   const d = cloneDeck(deck)
   const player = [getRandomCard(d), getRandomCard(d)]
   const banker = [getRandomCard(d), getRandomCard(d)]
@@ -83,7 +83,7 @@ const App = () => {
   const addCard = (side, rank) => {
     if (current[side].length >= 3) return
     const card = { rank, suit: suits[Math.floor(Math.random() * suits.length)] }
-    setCurrent((prev) => ({ ...prev, [side]: [...prev[side], card] }))
+    setCurrent((prev) => ({ ...prev, [side]: [...prev[side], card] })))
   }
 
   const confirmRound = () => {
@@ -112,7 +112,7 @@ const App = () => {
 
     let counts = { 莊: 0, 閒: 0, 和: 0 }
     for (let i = 0; i < 10000; i++) {
-      const winner = simulateGame(deck)
+      const winner = simulateGame(deck, hist)
       counts[winner]++
     }
 
@@ -127,23 +127,23 @@ const App = () => {
     <div className="min-h-screen bg-yellow-50 flex flex-col items-center p-6 text-center space-y-4">
       <h1 className="text-3xl font-bold text-red-600">AI 百家樂模擬預測</h1>
 
-      {/* 莊家按鈕列 */}
-      <div className="flex flex-col items-center space-y-2">
-        <div className="flex flex-wrap justify-center gap-2">
-          {ranks.map((r) => (
-            <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow">
-              莊 {r}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* 閒家按鈕列 */}
       <div className="flex flex-col items-center space-y-2">
         <div className="flex flex-wrap justify-center gap-2">
           {ranks.map((r) => (
             <button key={r + 'p'} onClick={() => addCard('player', r)} className="bg-blue-400 text-white px-4 py-2 rounded-xl shadow">
               閒 {r}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 莊家按鈕列 */}
+      <div className="flex flex-col items-center space-y-2">
+        <div className="flex flex-wrap justify-center gap-2">
+          {ranks.map((r) => (
+            <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow">
+              莊 {r}
             </button>
           ))}
         </div>
