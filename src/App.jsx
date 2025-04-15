@@ -71,29 +71,33 @@ export default function App() {
   };
 
   const predictNext = (history) => {
-    let bankerCount = 0;
-    let playerCount = 0;
+    setPrediction(null);
 
-    const simulations = 10000;
-    for (let i = 0; i < simulations; i++) {
-      let deck = shuffleDeck();
-      for (const _ of history) {
-        simulateGame(deck);
+    setTimeout(() => {
+      let bankerCount = 0;
+      let playerCount = 0;
+
+      const simulations = 1000;
+      for (let i = 0; i < simulations; i++) {
+        let deck = shuffleDeck();
+        for (const _ of history) {
+          simulateGame(deck);
+        }
+        const result = simulateGame(deck);
+        if (result === "莊") bankerCount++;
+        else if (result === "閒") playerCount++;
       }
-      const result = simulateGame(deck);
-      if (result === "莊") bankerCount++;
-      else if (result === "閒") playerCount++;
-    }
 
-    const total = bankerCount + playerCount;
-    const probBanker = (bankerCount / total) * 100;
-    const probPlayer = (playerCount / total) * 100;
+      const total = bankerCount + playerCount;
+      const probBanker = (bankerCount / total) * 100;
+      const probPlayer = (playerCount / total) * 100;
 
-    setPrediction({
-      winner: probBanker > probPlayer ? "莊" : "閒",
-      probBanker: probBanker.toFixed(1),
-      probPlayer: probPlayer.toFixed(1),
-    });
+      setPrediction({
+        winner: probBanker > probPlayer ? "莊" : "閒",
+        probBanker: probBanker.toFixed(1),
+        probPlayer: probPlayer.toFixed(1),
+      });
+    }, 50);
   };
 
   const addResult = (result) => {
@@ -140,13 +144,15 @@ export default function App() {
           <p>歷史紀錄：{history.join(" → ") || "尚未輸入"}</p>
         </div>
 
-        {prediction && (
+        {prediction ? (
           <div className="text-center text-2xl mt-6 font-bold text-red-700">
             推測下一局勝方：{prediction.winner}
             <p className="text-base font-normal mt-2 text-black">
               莊機率：{prediction.probBanker}%　閒機率：{prediction.probPlayer}%
             </p>
           </div>
+        ) : (
+          <div className="text-center text-xl mt-6 text-gray-600">計算中...</div>
         )}
       </div>
     </div>
