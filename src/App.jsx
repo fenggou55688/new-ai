@@ -77,7 +77,22 @@ const App = () => {
         <button onClick={() => addResult('和')} className="px-6 py-3 bg-green-500 text-white rounded-2xl text-xl shadow-xl hover:bg-green-600">和</button>
         <button onClick={clearHistory} className="px-6 py-3 bg-gray-400 text-white rounded-2xl text-xl shadow-xl hover:bg-gray-500">清除</button>
       </div>
-      <div className="text-xl text-gray-800">
+      
+      {/* 顯示歷史紀錄 */}
+      <div className="mt-4">
+        <h2 className="text-xl font-semibold">歷史紀錄：</h2>
+        <div className="text-lg text-gray-800">
+          {history.length > 0 ? (
+            history.map((res, index) => (
+              <span key={index} className="mr-2 text-sm">{res}</span>
+            ))
+          ) : (
+            <div>尚未有歷史紀錄</div>
+          )}
+        </div>
+      </div>
+
+      <div className="text-xl text-gray-800 mt-4">
         {result ? (
           <>
             <div>預測勝方：<span className="text-red-600">{result.winner}</span></div>
