@@ -118,7 +118,7 @@ export default function App() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        神算百家樂預測器
+        我是你爸爸
       </motion.h1>
 
       <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-2xl p-6 space-y-4">
