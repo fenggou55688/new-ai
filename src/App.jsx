@@ -130,7 +130,7 @@ const App = () => {
         {/* 閒家按鈕排在上面 */}
         <div className="flex flex-wrap justify-center gap-2">
           {ranks.map((r) => (
-            <button key={r + 'p'} onClick={() => addCard('player', r)} className="bg-blue-400 text-white px-4 py-2 rounded-xl shadow">
+            <button key={r + 'p'} onClick={() => addCard('player', r)} className="bg-blue-400 text-white px-4 py-2 rounded-xl shadow hover:bg-blue-500 active:bg-blue-600 transform active:scale-95 transition-all duration-200">
               閒 {r}
             </button>
           ))}
@@ -139,14 +139,18 @@ const App = () => {
         {/* 莊家按鈕排在下面 */}
         <div className="flex flex-wrap justify-center gap-2">
           {ranks.map((r) => (
-            <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow">
+            <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow hover:bg-red-500 active:bg-red-600 transform active:scale-95 transition-all duration-200">
               莊 {r}
             </button>
           ))}
         </div>
         
-        <button onClick={confirmRound} className="bg-green-600 text-white px-6 py-3 rounded-xl shadow">確認這局</button>
-        <button onClick={clearHistory} className="bg-gray-400 text-white px-6 py-3 rounded-xl shadow">清除</button>
+        <button onClick={confirmRound} className="bg-green-600 text-white px-6 py-3 rounded-xl shadow hover:bg-green-700 active:bg-green-800 transform active:scale-95 transition-all duration-200">
+          確認這局
+        </button>
+        <button onClick={clearHistory} className="bg-gray-400 text-white px-6 py-3 rounded-xl shadow hover:bg-gray-500 active:bg-gray-600 transform active:scale-95 transition-all duration-200">
+          清除
+        </button>
       </div>
 
       <div className="text-lg font-semibold text-gray-800">
