@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import * as tf from '@tensorflow/tfjs';
+import React, { useState } from 'react';
 
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 const suits = ['♠', '♥', '♦', '♣'];
@@ -34,7 +33,7 @@ const getRandomCard = (deck) => {
   return deck.splice(idx, 1)[0];
 };
 
-const simulateGame = (deck) => {
+const simulateGame = (deck, previousResult) => {
   const d = cloneDeck(deck);
   const player = [getRandomCard(d), getRandomCard(d)];
   const banker = [getRandomCard(d), getRandomCard(d)];
@@ -71,6 +70,14 @@ const simulateGame = (deck) => {
   const finalPlayer = calculatePoints(player);
   const finalBanker = calculatePoints(banker);
 
+  // 馬可夫鏈調整：根據上一局的結果加權
+  if (previousResult === '莊') {
+    return finalPlayer > finalBanker ? '閒' : '莊';
+  } else if (previousResult === '閒') {
+    return finalBanker > finalPlayer ? '莊' : '閒';
+  }
+
+  // 無先前結果則隨機回傳
   if (finalPlayer > finalBanker) return '閒';
   if (finalBanker > finalPlayer) return '莊';
   return '和';
@@ -80,15 +87,6 @@ const App = () => {
   const [history, setHistory] = useState([]);
   const [current, setCurrent] = useState({ banker: [], player: [] });
   const [result, setResult] = useState(null);
-
-  useEffect(() => {
-    // Initial TensorFlow.js loading or other setup logic can go here
-    const loadModel = async () => {
-      await tf.ready();
-      console.log('TensorFlow.js is ready!');
-    };
-    loadModel();
-  }, []);
 
   const addCard = (side, rank) => {
     if (current[side].length >= 3) return;
@@ -121,9 +119,11 @@ const App = () => {
     }
 
     let counts = { 莊: 0, 閒: 0, 和: 0 };
-    for (let i = 0; i < 50000; i++) { // Increased to 50000 simulations
-      const winner = simulateGame(deck);
+    let previousResult = '';
+    for (let i = 0; i < 50000; i++) {
+      const winner = simulateGame(deck, previousResult);
       counts[winner]++;
+      previousResult = winner;
     }
 
     setResult({
@@ -136,6 +136,16 @@ const App = () => {
   return (
     <div className="min-h-screen bg-yellow-50 flex flex-col items-center p-6 text-center space-y-4">
       <h1 className="text-3xl font-bold text-red-600">AI 百家樂模擬預測</h1>
+      {/* 莊家按鈕列 */}
+      <div className="flex flex-col items-center space-y-2">
+        <div className="flex flex-wrap justify-center gap-2">
+          {ranks.map((r) => (
+            <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow">
+              莊 {r}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* 閒家按鈕列 */}
       <div className="flex flex-col items-center space-y-2">
@@ -143,17 +153,6 @@ const App = () => {
           {ranks.map((r) => (
             <button key={r + 'p'} onClick={() => addCard('player', r)} className="bg-blue-400 text-white px-4 py-2 rounded-xl shadow">
               閒 {r}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 莊家按鈕列 */}
-      <div className="flex flex-col items-center space-y-2">
-        <div className="flex flex-wrap justify-center gap-2">
-          {ranks.map((r) => (
-            <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow">
-              莊 {r}
             </button>
           ))}
         </div>
@@ -178,18 +177,4 @@ const App = () => {
       </div>
 
       {/* 歷史紀錄顯示 */}
-      <div className="w-full max-w-md mt-6">
-        <h2 className="text-xl font-bold">歷史紀錄</h2>
-        <ul className="text-left text-gray-700 space-y-1">
-          {history.map((round, i) => (
-            <li key={i}>
-              第 {i + 1} 局 - 莊: {round.banker.map(c => c.rank + c.suit).join(', ')}，閒: {round.player.map(c => c.rank + c.suit).join(', ')}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-};
-
-export default App;
+      <div className="w-full
