@@ -1,0 +1,37 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+  color: white;
+  text-align: center;
+  padding: 2rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.history button {
+  font-size: 1.5rem;
+  margin: 0.5rem;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  background-color: #ffd700;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.history button:hover {
+  transform: scale(1.05);
+}
+
+.result {
+  margin-top: 2rem;
+  font-size: 1.3rem;
+  background-color: rgba(255,255,255,0.1);
+  padding: 1.5rem;
+  border-radius: 12px;
+}

@@ -1,12 +1,25 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>我是你爸爸</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 百家樂預測器</title>
+  <link href="style.css" rel="stylesheet" />
+</head>
+<body>
+  <div id="app">
+    <h1>AI 百家樂預測器</h1>
+    <div class="history">
+      <button onclick="addResult('莊')">莊</button>
+      <button onclick="addResult('閒')">閒</button>
+      <button onclick="addResult('和')">和</button>
+      <button onclick="clearHistory()">清除</button>
+    </div>
+    <div class="result">
+      <h2>預測結果</h2>
+      <div id="prediction">尚未預測</div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
 </html>
