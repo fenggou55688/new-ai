@@ -83,9 +83,8 @@ const App = () => {
   const addCard = (side, rank) => {
     if (current[side].length >= 3) return
     const card = { rank, suit: suits[Math.floor(Math.random() * suits.length)] }
-    setCurrent((prev) => ({ ...prev, [side]: [...prev[side], card] }))
-  }
-
+    setCurrent((prev) => ({ ...prev, [side]: [...prev[side], card] }))}
+  
   const confirmRound = () => {
     if (current.banker.length >= 2 && current.player.length >= 2) {
       setHistory([...history, current])
@@ -127,17 +126,25 @@ const App = () => {
     <div className="min-h-screen bg-yellow-50 flex flex-col items-center p-6 text-center space-y-4">
       <h1 className="text-3xl font-bold text-red-600">AI 百家樂模擬預測</h1>
 
-      <div className="flex flex-wrap justify-center gap-2">
-        {ranks.map((r) => (
-          <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow">
-            莊 {r}
-          </button>
-        ))}
-        {ranks.map((r) => (
-          <button key={r + 'p'} onClick={() => addCard('player', r)} className="bg-blue-400 text-white px-4 py-2 rounded-xl shadow">
-            閒 {r}
-          </button>
-        ))}
+      <div className="flex flex-col gap-4">
+        {/* 閒家按鈕排在上面 */}
+        <div className="flex flex-wrap justify-center gap-2">
+          {ranks.map((r) => (
+            <button key={r + 'p'} onClick={() => addCard('player', r)} className="bg-blue-400 text-white px-4 py-2 rounded-xl shadow">
+              閒 {r}
+            </button>
+          ))}
+        </div>
+        
+        {/* 莊家按鈕排在下面 */}
+        <div className="flex flex-wrap justify-center gap-2">
+          {ranks.map((r) => (
+            <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow">
+              莊 {r}
+            </button>
+          ))}
+        </div>
+        
         <button onClick={confirmRound} className="bg-green-600 text-white px-6 py-3 rounded-xl shadow">確認這局</button>
         <button onClick={clearHistory} className="bg-gray-400 text-white px-6 py-3 rounded-xl shadow">清除</button>
       </div>
