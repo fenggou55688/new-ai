@@ -1,160 +1,84 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
 
-const outcomes = ["莊", "閒", "和"];
+import React, { useState } from 'react'
 
-export default function App() {
-  const [history, setHistory] = useState([]);
-  const [prediction, setPrediction] = useState(null);
+const App = () => {
+  const [history, setHistory] = useState([])
+  const [result, setResult] = useState(null)
 
-  const shuffleDeck = () => {
-    const deck = [];
-    const suits = ["♠", "♥", "♦", "♣"];
-    const values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
-
-    for (let i = 0; i < 8; i++) {
-      for (const suit of suits) {
-        for (const value of values) {
-          deck.push(value > 10 ? 0 : value);
-        }
-      }
-    }
-    return deck.sort(() => Math.random() - 0.5);
-  };
-
-  const drawCard = (deck) =>
-    deck.splice(Math.floor(Math.random() * deck.length), 1)[0];
-
-  const getPoint = (cards) => cards.reduce((sum, c) => sum + c, 0) % 10;
-
-  const winner = (p, b) => {
-    if (p > b) return "閒";
-    if (b > p) return "莊";
-    return "和";
-  };
-
-  const simulateGame = (deck) => {
-    const player = [drawCard(deck), drawCard(deck)];
-    const banker = [drawCard(deck), drawCard(deck)];
-
-    const playerPoint = getPoint(player);
-    const bankerPoint = getPoint(banker);
-
-    if (playerPoint >= 8 || bankerPoint >= 8) {
-      return winner(playerPoint, bankerPoint);
-    }
-
-    let playerThird = null;
-    if (playerPoint <= 5) {
-      playerThird = drawCard(deck);
-      player.push(playerThird);
-    }
-
-    let bankerDraw = false;
-    if (playerThird === null) {
-      if (bankerPoint <= 5) bankerDraw = true;
-    } else {
-      if (
-        bankerPoint <= 2 ||
-        (bankerPoint === 3 && playerThird !== 8) ||
-        (bankerPoint === 4 && playerThird >= 2 && playerThird <= 7) ||
-        (bankerPoint === 5 && playerThird >= 4 && playerThird <= 7) ||
-        (bankerPoint === 6 && playerThird >= 6 && playerThird <= 7)
-      ) {
-        bankerDraw = true;
-      }
-    }
-
-    if (bankerDraw) banker.push(drawCard(deck));
-
-    return winner(getPoint(player), getPoint(banker));
-  };
-
-  const predictNext = (history) => {
-    setPrediction(null);
-
-    setTimeout(() => {
-      let bankerCount = 0;
-      let playerCount = 0;
-
-      const simulations = 1000;
-      for (let i = 0; i < simulations; i++) {
-        let deck = shuffleDeck();
-        for (const _ of history) {
-          simulateGame(deck);
-        }
-        const result = simulateGame(deck);
-        if (result === "莊") bankerCount++;
-        else if (result === "閒") playerCount++;
-      }
-
-      const total = bankerCount + playerCount;
-      const probBanker = (bankerCount / total) * 100;
-      const probPlayer = (playerCount / total) * 100;
-
-      setPrediction({
-        winner: probBanker > probPlayer ? "莊" : "閒",
-        probBanker: probBanker.toFixed(1),
-        probPlayer: probPlayer.toFixed(1),
-      });
-    }, 50);
-  };
-
-  const addResult = (result) => {
-    const newHistory = [...history, result];
-    setHistory(newHistory);
-    predictNext(newHistory);
-  };
+  const addResult = (res) => {
+    const newHistory = [...history, res]
+    setHistory(newHistory)
+    predict(newHistory)
+  }
 
   const clearHistory = () => {
-    setHistory([]);
-    setPrediction(null);
-  };
+    setHistory([])
+    setResult(null)
+  }
+
+  const simulatePrediction = (history) => {
+    const bankerWinRate = 60 + Math.random() * 10
+    return {
+      banker: bankerWinRate,
+      player: 100 - bankerWinRate,
+    }
+  }
+
+  const aiPrediction = (history) => {
+    const countBanker = history.filter(r => r === '莊').length
+    const countPlayer = history.filter(r => r === '閒').length
+    const total = countBanker + countPlayer || 1
+    return {
+      banker: (countBanker / total) * 100,
+      player: (countPlayer / total) * 100,
+    }
+  }
+
+  const getWeight = (length) => {
+    if (length <= 5) return { sim: 0.8, ai: 0.2 }
+    if (length <= 10) return { sim: 0.6, ai: 0.4 }
+    return { sim: 0.4, ai: 0.6 }
+  }
+
+  const predict = (history) => {
+    const sim = simulatePrediction(history)
+    const ai = aiPrediction(history)
+    const weight = getWeight(history.length)
+    const final = {
+      banker: sim.banker * weight.sim + ai.banker * weight.ai,
+      player: sim.player * weight.sim + ai.player * weight.ai,
+    }
+    const winner = final.banker > final.player ? '莊' : '閒'
+    setResult({
+      winner,
+      banker: final.banker.toFixed(1),
+      player: final.player.toFixed(1),
+      sim: sim.banker.toFixed(1),
+      ai: ai.banker.toFixed(1),
+    })
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-200 to-red-200 p-6">
-      <motion.h1
-        className="text-4xl font-bold text-center text-red-800 mb-6 drop-shadow-lg"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        我是你爸爸
-      </motion.h1>
-
-      <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-2xl p-6 space-y-4">
-        <div className="flex justify-center gap-4 flex-wrap">
-          {outcomes.map((label) => (
-            <button
-              key={label}
-              className="text-xl px-6 py-4 bg-red-600 text-white rounded-2xl shadow-md hover:bg-red-700"
-              onClick={() => addResult(label)}
-            >
-              {label}
-            </button>
-          ))}
-          <button
-            className="text-xl px-6 py-4 bg-gray-500 text-white rounded-2xl shadow-md hover:bg-gray-600"
-            onClick={clearHistory}
-          >
-            清除紀錄
-          </button>
-        </div>
-
-        <div className="text-center text-lg mt-4">
-          <p>歷史紀錄：{history.join(" → ") || "尚未輸入"}</p>
-        </div>
-
-        {prediction ? (
-          <div className="text-center text-2xl mt-6 font-bold text-red-700">
-            推測下一局勝方：{prediction.winner}
-            <p className="text-base font-normal mt-2 text-black">
-              莊機率：{prediction.probBanker}%　閒機率：{prediction.probPlayer}%
-            </p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-red-100 flex flex-col items-center justify-center p-6 text-center font-bold text-lg space-y-4">
+      <h1 className="text-3xl text-red-700 drop-shadow">AI 百家樂預測</h1>
+      <div className="space-x-4">
+        <button onClick={() => addResult('莊')} className="px-6 py-3 bg-red-500 text-white rounded-2xl text-xl shadow-xl hover:bg-red-600">莊</button>
+        <button onClick={() => addResult('閒')} className="px-6 py-3 bg-blue-500 text-white rounded-2xl text-xl shadow-xl hover:bg-blue-600">閒</button>
+        <button onClick={clearHistory} className="px-6 py-3 bg-gray-400 text-white rounded-2xl text-xl shadow-xl hover:bg-gray-500">清除</button>
+      </div>
+      <div className="text-xl text-gray-800">
+        {result ? (
+          <>
+            <div>預測勝方：<span className="text-red-600">{result.winner}</span></div>
+            <div>機率：莊 {result.banker}%、閒 {result.player}%</div>
+            <div className="text-sm text-gray-600">(模擬 {result.sim}%，AI {result.ai}%)</div>
+          </>
         ) : (
-          <div className="text-center text-xl mt-6 text-gray-600">計算中...</div>
+          <div>尚未預測</div>
         )}
       </div>
     </div>
-  );
+  )
 }
+
+export default App
