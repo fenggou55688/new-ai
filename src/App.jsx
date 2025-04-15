@@ -4,13 +4,6 @@ import * as tf from '@tensorflow/tfjs';
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 const suits = ['♠', '♥', '♦', '♣'];
 
-// 馬可夫鏈轉移矩陣
-const markovChain = {
-  '莊': { '莊': 0.5, '閒': 0.4, '和': 0.1 },
-  '閒': { '莊': 0.4, '閒': 0.5, '和': 0.1 },
-  '和': { '莊': 0.33, '閒': 0.33, '和': 0.34 }
-};
-
 const buildDeck = () => {
   const deck = [];
   for (let i = 0; i < 8; i++) {
@@ -39,21 +32,6 @@ const cloneDeck = (deck) => JSON.parse(JSON.stringify(deck));
 const getRandomCard = (deck) => {
   const idx = Math.floor(Math.random() * deck.length);
   return deck.splice(idx, 1)[0];
-};
-
-// 馬可夫鏈預測
-const predictNextRound = (currentState) => {
-  const transitionProbabilities = markovChain[currentState];
-  const rand = Math.random();
-  let cumulativeProbability = 0;
-
-  for (let [state, probability] of Object.entries(transitionProbabilities)) {
-    cumulativeProbability += probability;
-    if (rand < cumulativeProbability) {
-      return state;
-    }
-  }
-  return '莊'; // Default to "莊" if the random number doesn't fall within probabilities
 };
 
 const simulateGame = (deck) => {
@@ -98,41 +76,18 @@ const simulateGame = (deck) => {
   return '和';
 };
 
-// 神經網絡模型訓練
-const trainModel = async () => {
-  const data = [
-    { features: [3, 7, 1, 8], label: '莊' },
-    { features: [4, 6, 2, 5], label: '閒' },
-    // 更多數據...
-  ];
-
-  const xs = tf.tensor2d(data.map(d => d.features));
-  const ys = tf.tensor1d(data.map(d => d.label === '莊' ? 1 : d.label === '閒' ? 2 : 3));
-
-  const model = tf.sequential();
-  model.add(tf.layers.dense({ units: 32, inputShape: [4], activation: 'relu' }));
-  model.add(tf.layers.dense({ units: 3, activation: 'softmax' }));
-
-  model.compile({ optimizer: 'adam', loss: 'sparseCategoricalCrossentropy', metrics: ['accuracy'] });
-
-  await model.fit(xs, ys, { epochs: 10 });
-
-  return model;
-};
-
 const App = () => {
   const [history, setHistory] = useState([]);
   const [current, setCurrent] = useState({ banker: [], player: [] });
   const [result, setResult] = useState(null);
-  const [model, setModel] = useState(null);
 
   useEffect(() => {
-    // 訓練機器學習模型
-    const initModel = async () => {
-      const trainedModel = await trainModel();
-      setModel(trainedModel);
+    // Initial TensorFlow.js loading or other setup logic can go here
+    const loadModel = async () => {
+      await tf.ready();
+      console.log('TensorFlow.js is ready!');
     };
-    initModel();
+    loadModel();
   }, []);
 
   const addCard = (side, rank) => {
@@ -155,7 +110,7 @@ const App = () => {
     setResult(null);
   };
 
-  const runSimulation = async (hist) => {
+  const runSimulation = (hist) => {
     let deck = buildDeck();
 
     for (let round of hist) {
@@ -166,17 +121,9 @@ const App = () => {
     }
 
     let counts = { 莊: 0, 閒: 0, 和: 0 };
-
-    for (let i = 0; i < 50000; i++) {
-      const winner = predictNextRound('莊'); // 馬可夫鏈預測下一局
+    for (let i = 0; i < 50000; i++) { // Increased to 50000 simulations
+      const winner = simulateGame(deck);
       counts[winner]++;
-    }
-
-    if (model) {
-      const prediction = model.predict(tf.tensor2d([[3, 7, 1, 8]])); // 輸入特徵進行預測
-      const predictedLabel = prediction.argMax(-1).dataSync()[0];
-      const label = predictedLabel === 0 ? '莊' : predictedLabel === 1 ? '閒' : '和';
-      console.log(`AI預測結果: ${label}`);
     }
 
     setResult({
@@ -190,23 +137,23 @@ const App = () => {
     <div className="min-h-screen bg-yellow-50 flex flex-col items-center p-6 text-center space-y-4">
       <h1 className="text-3xl font-bold text-red-600">AI 百家樂模擬預測</h1>
 
-      {/* 莊家點數按鈕列 */}
-      <div className="flex flex-col items-center space-y-2">
-        <div className="flex flex-wrap justify-center gap-2">
-          {ranks.map((r) => (
-            <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow">
-              莊 {r}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 閒家點數按鈕列 */}
+      {/* 閒家按鈕列 */}
       <div className="flex flex-col items-center space-y-2">
         <div className="flex flex-wrap justify-center gap-2">
           {ranks.map((r) => (
             <button key={r + 'p'} onClick={() => addCard('player', r)} className="bg-blue-400 text-white px-4 py-2 rounded-xl shadow">
               閒 {r}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 莊家按鈕列 */}
+      <div className="flex flex-col items-center space-y-2">
+        <div className="flex flex-wrap justify-center gap-2">
+          {ranks.map((r) => (
+            <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow">
+              莊 {r}
             </button>
           ))}
         </div>
@@ -234,9 +181,9 @@ const App = () => {
       <div className="w-full max-w-md mt-6">
         <h2 className="text-xl font-bold">歷史紀錄</h2>
         <ul className="text-left text-gray-700 space-y-1">
-          {history.map((round, idx) => (
-            <li key={idx}>
-              {round.player.map(c => `${c.rank}${c.suit}`).join(', ')} &gt; {round.banker.map(c => `${c.rank}${c.suit}`).join(', ')}
+          {history.map((round, i) => (
+            <li key={i}>
+              第 {i + 1} 局 - 莊: {round.banker.map(c => c.rank + c.suit).join(', ')}，閒: {round.player.map(c => c.rank + c.suit).join(', ')}
             </li>
           ))}
         </ul>
