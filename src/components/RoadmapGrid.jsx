@@ -2,23 +2,24 @@ import React from 'react';
 
 const RoadmapGrid = ({ title, data }) => {
   return (
-    <div className="w-full max-w-lg mt-8">
-      <h2 className="text-2xl font-bold text-center text-gray-700">{title}</h2>
-      <div className="grid grid-cols-6 gap-1 mt-4">
-        {data.map((row, rowIndex) => (
-          <div key={rowIndex} className="flex space-x-1">
-            {row.map((cell, colIndex) => (
+    <div className="mt-6 w-full max-w-full overflow-auto">
+      <h2 className="text-xl font-bold mb-2">{title}</h2>
+      <div className="grid grid-cols-[repeat(50,minmax(0,1fr))] gap-1">
+        {Array(6).fill(null).map((_, row) =>
+          data.map((col, colIndex) => {
+            const cell = col[row];
+            return (
               <div
-                key={colIndex}
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  cell === '莊' ? 'bg-red-600 text-white' : cell === '閒' ? 'bg-blue-600 text-white' : 'bg-gray-400 text-white'
-                }`}
+                key={`${colIndex}-${row}`}
+                className="w-6 h-6 flex items-center justify-center border bg-white rounded-full"
               >
-                {cell}
+                {cell === '莊' && <div className="w-4 h-4 bg-red-500 rounded-full" />}
+                {cell === '閒' && <div className="w-4 h-4 bg-blue-500 rounded-full" />}
+                {cell === '和' && <div className="w-4 h-4 bg-green-500 rounded-full" />}
               </div>
-            ))}
-          </div>
-        ))}
+            );
+          })
+        )}
       </div>
     </div>
   );

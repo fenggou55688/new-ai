@@ -39,7 +39,6 @@ const App = () => {
     <div className="min-h-screen bg-gradient-to-br from-yellow-100 to-red-100 p-6 flex flex-col items-center space-y-6">
       <h1 className="text-3xl font-bold text-red-700">AI 百家樂預測系統</h1>
 
-      {/* 按鈕區 */}
       <div className="flex space-x-3">
         {['莊', '閒', '和'].map((item) => (
           <button
@@ -57,14 +56,12 @@ const App = () => {
         </button>
       </div>
 
-      {/* 預測結果 */}
       {prediction && (
         <div className="bg-white p-4 rounded-xl shadow-lg text-lg">
           預測結果：<span className="font-bold text-red-600">{prediction.result}</span>（信心值：{prediction.confidence}）
         </div>
       )}
 
-      {/* 模擬按鈕 */}
       <button
         onClick={handleSimulate}
         className="bg-purple-600 text-white px-6 py-3 rounded-xl shadow text-xl"
@@ -72,7 +69,6 @@ const App = () => {
         模擬預測下一局
       </button>
 
-      {/* 大路圖顯示 */}
       <RoadmapGrid title="大路" data={bigRoad} />
     </div>
   );

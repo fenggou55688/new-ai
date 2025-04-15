@@ -1,16 +1,12 @@
 {
-  "name": "baccarat-predictor",
+  "name": "baccarat-roadmap-predictor",
   "version": "1.0.0",
+  "private": true,
   "main": "src/index.js",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "^5.0.1",
-    "tailwindcss": "^3.0.24"
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.4.0",
-    "postcss": "^8.4.5"
+    "react-scripts": "5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
