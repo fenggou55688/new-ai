@@ -83,7 +83,7 @@ const App = () => {
   const addCard = (side, rank) => {
     if (current[side].length >= 3) return
     const card = { rank, suit: suits[Math.floor(Math.random() * suits.length)] }
-    setCurrent((prev) => ({ ...prev, [side]: [...prev[side], card] }))
+    setCurrent((prev) => ({ ...prev, [side]: [...prev[side], card] }))}
   }
 
   const confirmRound = () => {
@@ -95,7 +95,7 @@ const App = () => {
   }
 
   const clearHistory = () => {
-    setHistory([])
+    setHistory([]) 
     setCurrent({ banker: [], player: [] })
     setResult(null)
   }
@@ -128,17 +128,24 @@ const App = () => {
       <h1 className="text-3xl font-bold text-red-600">AI 百家樂模擬預測</h1>
 
       <div className="flex flex-wrap justify-center gap-2">
-        {/* 將閒家按鈕放在上面 */}
-        {ranks.map((r) => (
-          <button key={r + 'p'} onClick={() => addCard('player', r)} className="bg-blue-400 text-white px-4 py-2 rounded-xl shadow">
-            閒 {r}
-          </button>
-        ))}
-        {ranks.map((r) => (
-          <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow">
-            莊 {r}
-          </button>
-        ))}
+        {/* 閒家按鈕排在上面 */}
+        <div className="flex flex-wrap justify-center gap-2 mb-4">
+          {ranks.map((r) => (
+            <button key={r + 'p'} onClick={() => addCard('player', r)} className="bg-blue-400 text-white px-4 py-2 rounded-xl shadow">
+              閒 {r}
+            </button>
+          ))}
+        </div>
+        
+        {/* 莊家按鈕排在下面 */}
+        <div className="flex flex-wrap justify-center gap-2">
+          {ranks.map((r) => (
+            <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow">
+              莊 {r}
+            </button>
+          ))}
+        </div>
+        
         <button onClick={confirmRound} className="bg-green-600 text-white px-6 py-3 rounded-xl shadow">確認這局</button>
         <button onClick={clearHistory} className="bg-gray-400 text-white px-6 py-3 rounded-xl shadow">清除</button>
       </div>
