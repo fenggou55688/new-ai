@@ -1,151 +1,131 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 
-const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-const suits = ['♠', '♥', '♦', '♣'];
+const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
+const suits = ['♠', '♥', '♦', '♣']
 
 const buildDeck = () => {
-  const deck = [];
+  const deck = []
   for (let i = 0; i < 8; i++) {
     for (let suit of suits) {
       for (let rank of ranks) {
-        deck.push({ rank, suit });
+        deck.push({ rank, suit })
       }
     }
   }
-  return deck;
-};
+  return deck
+}
 
 const getCardValue = (rank) => {
-  if (rank === 'A') return 1;
-  if (['10', 'J', 'Q', 'K'].includes(rank)) return 0;
-  return parseInt(rank);
-};
+  if (rank === 'A') return 1
+  if (['10', 'J', 'Q', 'K'].includes(rank)) return 0
+  return parseInt(rank)
+}
 
 const calculatePoints = (cards) => {
-  let total = cards.reduce((sum, card) => sum + getCardValue(card.rank), 0);
-  return total % 10;
-};
+  let total = cards.reduce((sum, card) => sum + getCardValue(card.rank), 0)
+  return total % 10
+}
 
-const cloneDeck = (deck) => JSON.parse(JSON.stringify(deck));
+const cloneDeck = (deck) => JSON.parse(JSON.stringify(deck))
 
 const getRandomCard = (deck) => {
-  const idx = Math.floor(Math.random() * deck.length);
-  return deck.splice(idx, 1)[0];
-};
+  const idx = Math.floor(Math.random() * deck.length)
+  return deck.splice(idx, 1)[0]
+}
 
-const simulateGame = (deck, previousResult) => {
-  const d = cloneDeck(deck);
-  const player = [getRandomCard(d), getRandomCard(d)];
-  const banker = [getRandomCard(d), getRandomCard(d)];
+const simulateGame = (deck, history) => {
+  const d = cloneDeck(deck)
+  const player = [getRandomCard(d), getRandomCard(d)]
+  const banker = [getRandomCard(d), getRandomCard(d)]
 
-  const playerPoint = calculatePoints(player);
-  const bankerPoint = calculatePoints(banker);
+  const playerPoint = calculatePoints(player)
+  const bankerPoint = calculatePoints(banker)
 
-  let playerThird = null;
-  let bankerThird = null;
+  let playerThird = null
+  let bankerThird = null
 
   if (playerPoint <= 5) {
-    playerThird = getRandomCard(d);
-    player.push(playerThird);
+    playerThird = getRandomCard(d)
+    player.push(playerThird)
   }
 
   const bankerDrawRule = (p, b, ptCard) => {
-    if (b >= 7) return false;
-    if (b <= 2) return true;
-    if (!ptCard) return b <= 5;
+    if (b >= 7) return false
+    if (b <= 2) return true
+    if (!ptCard) return b <= 5
 
-    const pt = getCardValue(ptCard.rank);
-    if (b === 3) return pt !== 8;
-    if (b === 4) return pt >= 2 && pt <= 7;
-    if (b === 5) return pt >= 4 && pt <= 7;
-    if (b === 6) return pt === 6 || pt === 7;
-    return false;
-  };
+    const pt = getCardValue(ptCard.rank)
+    if (b === 3) return pt !== 8
+    if (b === 4) return pt >= 2 && pt <= 7
+    if (b === 5) return pt >= 4 && pt <= 7
+    if (b === 6) return pt === 6 || pt === 7
+    return false
+  }
 
   if (bankerDrawRule(playerPoint, bankerPoint, playerThird)) {
-    bankerThird = getRandomCard(d);
-    banker.push(bankerThird);
+    bankerThird = getRandomCard(d)
+    banker.push(bankerThird)
   }
 
-  const finalPlayer = calculatePoints(player);
-  const finalBanker = calculatePoints(banker);
+  const finalPlayer = calculatePoints(player)
+  const finalBanker = calculatePoints(banker)
 
-  // 馬可夫鏈調整：根據上一局的結果加權
-  if (previousResult === '莊') {
-    return finalPlayer > finalBanker ? '閒' : '莊';
-  } else if (previousResult === '閒') {
-    return finalBanker > finalPlayer ? '莊' : '閒';
-  }
-
-  // 無先前結果則隨機回傳
-  if (finalPlayer > finalBanker) return '閒';
-  if (finalBanker > finalPlayer) return '莊';
-  return '和';
-};
+  if (finalPlayer > finalBanker) return '閒'
+  if (finalBanker > finalPlayer) return '莊'
+  return '和'
+}
 
 const App = () => {
-  const [history, setHistory] = useState([]);
-  const [current, setCurrent] = useState({ banker: [], player: [] });
-  const [result, setResult] = useState(null);
+  const [history, setHistory] = useState([])
+  const [current, setCurrent] = useState({ banker: [], player: [] })
+  const [result, setResult] = useState(null)
 
   const addCard = (side, rank) => {
-    if (current[side].length >= 3) return;
-    const card = { rank, suit: suits[Math.floor(Math.random() * suits.length)] };
-    setCurrent((prev) => ({ ...prev, [side]: [...prev[side], card] }));
-  };
+    if (current[side].length >= 3) return
+    const card = { rank, suit: suits[Math.floor(Math.random() * suits.length)] }
+    setCurrent((prev) => ({ ...prev, [side]: [...prev[side], card] })))
+  }
 
   const confirmRound = () => {
     if (current.banker.length >= 2 && current.player.length >= 2) {
-      setHistory([...history, current]);
-      setCurrent({ banker: [], player: [] });
-      runSimulation([...history, current]);
+      setHistory([...history, current])
+      setCurrent({ banker: [], player: [] })
+      runSimulation([...history, current])
     }
-  };
+  }
 
   const clearHistory = () => {
-    setHistory([]);
-    setCurrent({ banker: [], player: [] });
-    setResult(null);
-  };
+    setHistory([])
+    setCurrent({ banker: [], player: [] })
+    setResult(null)
+  }
 
   const runSimulation = (hist) => {
-    let deck = buildDeck();
+    let deck = buildDeck()
 
     for (let round of hist) {
       for (let card of [...round.banker, ...round.player]) {
-        const idx = deck.findIndex(c => c.rank === card.rank && c.suit === card.suit);
-        if (idx !== -1) deck.splice(idx, 1);
+        const idx = deck.findIndex(c => c.rank === card.rank && c.suit === card.suit)
+        if (idx !== -1) deck.splice(idx, 1)
       }
     }
 
-    let counts = { 莊: 0, 閒: 0, 和: 0 };
-    let previousResult = '';
-    for (let i = 0; i < 50000; i++) {
-      const winner = simulateGame(deck, previousResult);
-      counts[winner]++;
-      previousResult = winner;
+    let counts = { 莊: 0, 閒: 0, 和: 0 }
+    for (let i = 0; i < 10000; i++) {
+      const winner = simulateGame(deck, hist)
+      counts[winner]++
     }
 
     setResult({
-      banker: (counts['莊'] / 50000 * 100).toFixed(1),
-      player: (counts['閒'] / 50000 * 100).toFixed(1),
-      tie: (counts['和'] / 50000 * 100).toFixed(1),
-    });
-  };
+      banker: (counts['莊'] / 10000 * 100).toFixed(1),
+      player: (counts['閒'] / 10000 * 100).toFixed(1),
+      tie: (counts['和'] / 10000 * 100).toFixed(1),
+    })
+  }
 
   return (
     <div className="min-h-screen bg-yellow-50 flex flex-col items-center p-6 text-center space-y-4">
       <h1 className="text-3xl font-bold text-red-600">AI 百家樂模擬預測</h1>
-      {/* 莊家按鈕列 */}
-      <div className="flex flex-col items-center space-y-2">
-        <div className="flex flex-wrap justify-center gap-2">
-          {ranks.map((r) => (
-            <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow">
-              莊 {r}
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* 閒家按鈕列 */}
       <div className="flex flex-col items-center space-y-2">
@@ -153,6 +133,17 @@ const App = () => {
           {ranks.map((r) => (
             <button key={r + 'p'} onClick={() => addCard('player', r)} className="bg-blue-400 text-white px-4 py-2 rounded-xl shadow">
               閒 {r}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 莊家按鈕列 */}
+      <div className="flex flex-col items-center space-y-2">
+        <div className="flex flex-wrap justify-center gap-2">
+          {ranks.map((r) => (
+            <button key={r} onClick={() => addCard('banker', r)} className="bg-red-400 text-white px-4 py-2 rounded-xl shadow">
+              莊 {r}
             </button>
           ))}
         </div>
@@ -177,4 +168,18 @@ const App = () => {
       </div>
 
       {/* 歷史紀錄顯示 */}
-      <div className="w-full
+      <div className="w-full max-w-md mt-6">
+        <h2 className="text-xl font-bold">歷史紀錄</h2>
+        <ul className="text-left text-gray-700 space-y-1">
+          {history.map((round, i) => (
+            <li key={i}>
+              第 {i + 1} 局 - 莊: {round.banker.map(c => c.rank + c.suit).join(', ')}，閒: {round.player.map(c => c.rank + c.suit).join(', ')}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+export default App
